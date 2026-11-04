@@ -1,0 +1,15 @@
+import { chromium } from "playwright";
+const base = process.argv[2], file = process.argv[3];
+const b = await chromium.launch(); const p = await b.newPage();
+p.on("pageerror", (e) => console.log("PAGEERROR", e.message));
+p.on("console", (m) => m.type() === "error" && console.log("CONSOLE", m.text().slice(0, 200)));
+await p.goto(base + "/stt.html");
+await p.setInputFiles("#file", file);
+await p.waitForFunction(() => /^완료|^오류|감지되지|읽을 수 없습니다/.test(document.getElementById("status").textContent), null, { timeout: 900000 });
+console.log("STATUS:", await p.textContent("#status"));
+for (const t of await p.$$(".turn")) console.log(await (await t.$(".who")).textContent(), "|", await (await t.$(".tm")).textContent(), "|", await (await t.$("textarea")).inputValue());
+await p.click("#flip");
+console.log("after flip:", (await p.$$eval(".who", (e) => e.map((x) => x.textContent))).join(","));
+await p.click("#save"); await p.reload();
+console.log("history rows after reload:", await p.$$eval("#history .row", (e) => e.length));
+await b.close();

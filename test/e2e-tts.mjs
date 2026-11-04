@@ -1,0 +1,15 @@
+import { chromium } from "playwright";
+import fs from "node:fs";
+const base = process.argv[2], out = process.argv[3];
+const text = process.argv[4];
+const b = await chromium.launch(); const p = await b.newPage({ acceptDownloads: true });
+p.on("pageerror", (e) => console.log("PAGEERROR", e.message));
+p.on("console", (m) => m.type() === "error" && console.log("CONSOLE", m.text().slice(0, 200)));
+await p.goto(base + "/tts.html");
+await p.fill("#text", text);
+await p.click("#go");
+await p.waitForFunction(() => !document.getElementById("dl").hidden || document.getElementById("status").textContent.startsWith("오류"), null, { timeout: 600000 });
+console.log("STATUS:", await p.textContent("#status"));
+const [d] = await Promise.all([p.waitForEvent("download"), p.click("#dl")]);
+await d.saveAs(out); console.log("saved", out, fs.statSync(out).size);
+await b.close();

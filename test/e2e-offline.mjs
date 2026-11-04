@@ -1,0 +1,14 @@
+import { chromium } from "playwright";
+const base = process.argv[2];
+const b = await chromium.launch(); const ctx = await b.newContext(); const p = await ctx.newPage();
+p.on("pageerror", (e) => console.log("PAGEERROR", e.message));
+const gen = async () => { await p.fill("#text", "Offline test sentence."); await p.click("#go");
+  await p.waitForFunction(() => !document.getElementById("dl").hidden || document.getElementById("status").textContent.startsWith("오류"), null, { timeout: 600000 });
+  return p.textContent("#status"); };
+await p.goto(base + "/tts.html"); await p.evaluate(() => navigator.serviceWorker.ready);
+console.log("online :", await gen());
+await p.reload(); await p.evaluate(() => navigator.serviceWorker.ready);
+await ctx.setOffline(true);
+await p.reload(); console.log("offline page loaded:", await p.title());
+console.log("offline:", await gen());
+await b.close();
