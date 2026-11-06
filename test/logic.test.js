@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { resample, splitTurns, labelTurns, invertLabels, floatToInt16 } from "../src/pcm.js";
 import { serialize, parse, fmtTime } from "../src/transcript.js";
+import { t, translations, getLang, setLang, toggleLang } from "../src/i18n.js";
 
 const tone = (sec, rate, amp = 0.5) => Float32Array.from({ length: sec * rate }, (_, i) => amp * Math.sin(i / 10));
 const silence = (sec, rate) => new Float32Array(sec * rate);
@@ -15,10 +16,10 @@ test("resample same rate returns same data", () => {
 });
 test("splitTurns finds two turns separated by a long pause", () => {
   const r = 16000, x = cat(tone(2, r), silence(1, r), tone(2, r));
-  const t = splitTurns(x, r);
-  assert.equal(t.length, 2);
-  assert.ok(t[0].start < 0.1 * r && Math.abs(t[0].end - 2 * r) < 0.2 * r);
-  assert.ok(Math.abs(t[1].start - 3 * r) < 0.2 * r);
+  const tTurns = splitTurns(x, r);
+  assert.equal(tTurns.length, 2);
+  assert.ok(tTurns[0].start < 0.1 * r && Math.abs(tTurns[0].end - 2 * r) < 0.2 * r);
+  assert.ok(Math.abs(tTurns[1].start - 3 * r) < 0.2 * r);
 });
 test("splitTurns keeps a short pause inside one turn", () => {
   const r = 16000;
@@ -45,3 +46,20 @@ test("transcript round-trips including colons in text", () => {
   assert.deepEqual(parse(serialize(turns)), turns);
 });
 test("fmtTime formats mm:ss.t", () => assert.equal(fmtTime(61250), "01:01.2"));
+
+// i18n tests
+test("i18n translations cover both ko and en", () => {
+  assert.ok(translations.ko);
+  assert.ok(translations.en);
+  assert.equal(t("makeMp3", "ko"), "mp3 만들기");
+  assert.equal(t("makeMp3", "en"), "Generate MP3");
+  assert.equal(t("sttTitle", "ko"), "mp3 → 텍스트");
+  assert.equal(t("sttTitle", "en"), "MP3 → Text");
+});
+
+test("i18n dynamic formatting functions work in both languages", () => {
+  assert.equal(translations.ko.ttsConverting(2, 5), "3/5 문장 변환 중");
+  assert.equal(translations.en.ttsConverting(2, 5), "Converting sentence 3/5");
+  assert.equal(translations.ko.sttDone(4), "완료: 4개 턴. 틀린 부분은 직접 고칠 수 있어요.");
+  assert.equal(translations.en.sttDone(4), "Completed: 4 turns. You can edit any mistakes directly.");
+});

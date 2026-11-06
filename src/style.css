@@ -2,7 +2,11 @@
 * { box-sizing: border-box; }
 body { margin:0; background:var(--bg); color:#fff; font:16px/1.5 system-ui,sans-serif; }
 main { max-width:760px; margin:0 auto; padding:20px 16px 60px; }
-h1 { font-size:22px; } a { color:var(--green); }
+.top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; min-height:36px; }
+.top-bar .logo { font-size:16px; font-weight:700; color:var(--green); letter-spacing:0.5px; }
+.lang-btn { background:var(--surface); border:1px solid var(--raised); color:var(--dim); border-radius:999px; padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all .2s ease; margin-left:auto; }
+.lang-btn:hover { color:#fff; border-color:var(--green); background:var(--raised); }
+h1 { font-size:22px; margin-top:4px; } a { color:var(--green); }
 textarea,select,input[type=file] { width:100%; background:var(--raised); color:#fff; border:0; border-radius:8px; padding:12px; font:inherit; }
 textarea { min-height:160px; resize:vertical; }
 button,.btn { background:var(--green); color:#000; border:0; border-radius:999px; padding:10px 22px; font-weight:700; font-size:15px; cursor:pointer; text-decoration:none; display:inline-block; }
@@ -14,7 +18,8 @@ progress { width:100%; accent-color:var(--green); }
 .turn { background:var(--surface); border-radius:10px; padding:10px; margin:8px 0; display:grid; grid-template-columns:auto 1fr; gap:6px 10px; }
 .turn textarea { min-height:60px; grid-column:1/-1; background:var(--raised); }
 .turn .who { padding:4px 14px; font-size:13px; }
-.turn.학생 { border-left:4px solid var(--green); } .turn.강사 { border-left:4px solid #509BF5; }
+.turn.학생, .turn.student { border-left:4px solid var(--green); }
+.turn.강사, .turn.instructor { border-left:4px solid #509BF5; }
 audio { width:100%; margin-top:12px; }
 .cards { display:grid; gap:12px; margin-top:24px; } .cards a { background:var(--surface); padding:20px; border-radius:12px; color:#fff; text-decoration:none; }
 .cards b { color:var(--green); display:block; font-size:18px; }

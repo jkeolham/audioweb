@@ -1,3 +1,33 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AudioWeb</title><link rel="stylesheet" href="./src/style.css"><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#121212"></head>
-<body><main><h1>AudioWeb</h1><p class="dim">서버 없이 브라우저 안에서만 동작합니다. 첫 사용 때 음성 모델을 한 번 내려받습니다.</p>
-<div class="cards"><a href="./tts.html"><b>텍스트 → mp3</b>영어 텍스트를 음성 mp3 파일로 만들기</a><a href="./stt.html"><b>mp3 → 텍스트</b>전화영어 녹음을 강사/학생 대화 텍스트로 받아쓰기</a></div></main><script type="module" src="./src/sw-register.js"></script></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AudioWeb</title>
+  <link rel="stylesheet" href="./src/style.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#121212">
+</head>
+<body>
+  <main>
+    <header class="top-bar">
+      <span class="logo">AudioWeb</span>
+      <button id="lang-btn" class="lang-btn" type="button">🌐 English</button>
+    </header>
+    <h1 id="title">AudioWeb</h1>
+    <p id="desc" class="dim">서버 없이 브라우저 안에서만 동작합니다. 첫 사용 때 음성 모델을 한 번 내려받습니다.</p>
+    <div class="cards">
+      <a href="./tts.html">
+        <b id="tts-card-title">텍스트 → mp3</b>
+        <span id="tts-card-desc">영어 텍스트를 음성 mp3 파일로 만들기</span>
+      </a>
+      <a href="./stt.html">
+        <b id="stt-card-title">mp3 → 텍스트</b>
+        <span id="stt-card-desc">전화영어 녹음을 강사/학생 대화 텍스트로 받아쓰기</span>
+      </a>
+    </div>
+  </main>
+  <script type="module" src="./src/index-main.js"></script>
+  <script type="module" src="./src/sw-register.js"></script>
+</body>
+</html>
