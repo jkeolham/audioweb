@@ -1,0 +1,10 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>mp3 → 텍스트</title><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#121212">  <script type="module" crossorigin src="./assets/stt-Bm8M_EFv.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/sw-register-B9EspZzc.js">
+  <link rel="stylesheet" crossorigin href="./assets/sw-register-DnAojhSz.css">
+</head>
+<body><main><p><a href="./">← AudioWeb</a></p><h1>mp3 → 텍스트</h1>
+<input id="file" type="file" accept="audio/*,.mp3">
+<progress id="bar" value="0" max="1" hidden></progress><p id="status" class="dim">전화영어 mp3(영어, 1:1)를 선택하세요. 먼저 거는 쪽(첫 발화)을 강사로 간주합니다.</p>
+<div id="tools" class="row" hidden><button id="flip" class="ghost">라벨 전체 반전</button><button id="save">저장</button><button id="txt" class="ghost">.txt 다운로드</button></div>
+<div id="turns"></div><h2>저장한 기록</h2><div id="history"></div>
+</main></body></html>
