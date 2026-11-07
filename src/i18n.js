@@ -35,6 +35,8 @@ export const translations = {
 
     // stt.html
     sttTitle: "mp3 → 텍스트",
+    chooseFile: "파일 선택",
+    noFileChosen: "선택된 파일 없음",
     sttDesc: "전화영어 mp3(영어, 1:1)를 선택하세요. 먼저 거는 쪽(첫 발화)을 강사로 간주합니다.",
     flipLabels: "라벨 전체 반전",
     save: "저장",
@@ -90,6 +92,8 @@ export const translations = {
 
     // stt.html
     sttTitle: "MP3 → Text",
+    chooseFile: "Choose File",
+    noFileChosen: "No file chosen",
     sttDesc: "Select phone English audio (1:1). The caller (first turn) is assumed to be the instructor.",
     flipLabels: "Invert Speaker Labels",
     save: "Save",

@@ -55,6 +55,10 @@ test("i18n translations cover both ko and en", () => {
   assert.equal(t("makeMp3", "en"), "Generate MP3");
   assert.equal(t("sttTitle", "ko"), "mp3 → 텍스트");
   assert.equal(t("sttTitle", "en"), "MP3 → Text");
+  assert.equal(t("chooseFile", "ko"), "파일 선택");
+  assert.equal(t("chooseFile", "en"), "Choose File");
+  assert.equal(t("noFileChosen", "ko"), "선택된 파일 없음");
+  assert.equal(t("noFileChosen", "en"), "No file chosen");
 });
 
 test("i18n dynamic formatting functions work in both languages", () => {

@@ -53,9 +53,31 @@ function updateTexts(lang) {
   if ($("txt")) $("txt").textContent = t("downloadTxt", lang);
   if ($("history-title")) $("history-title").textContent = t("savedHistory", lang);
 
+  updateFilePickerUI(lang);
   updateStatusText(lang);
   render();
   renderHistory();
+}
+
+function setFilePickerDisabled(disabled) {
+  if ($("file")) $("file").disabled = disabled;
+  const picker = $("file-picker");
+  if (picker) picker.classList.toggle("disabled", disabled);
+}
+
+function updateFilePickerUI(lang) {
+  const btn = $("file-btn");
+  const nameEl = $("file-name");
+  if (btn) btn.textContent = t("chooseFile", lang);
+  if (nameEl) {
+    if (fileName) {
+      nameEl.textContent = fileName;
+      nameEl.classList.remove("dim");
+    } else {
+      nameEl.textContent = t("noFileChosen", lang);
+      nameEl.classList.add("dim");
+    }
+  }
 }
 
 function newWorker() {
@@ -87,13 +109,13 @@ function newWorker() {
       lastStatusType = "done";
       $("bar").hidden = true;
       updateStatusText(lang);
-      $("file").disabled = false;
+      setFilePickerDisabled(false);
     } else if (m.type === "error") {
       lastStatusType = "error";
       lastStatusData = { msg: m.msg };
       $("bar").hidden = true;
       updateStatusText(lang);
-      $("file").disabled = false;
+      setFilePickerDisabled(false);
     }
   };
 }
@@ -162,6 +184,7 @@ function renderHistory() {
     openBtn.onclick = () => {
       audio = null;
       fileName = h.name;
+      updateFilePickerUI(lang);
       turns = parse(h.body);
       render();
       lastStatusType = "history_loaded";
@@ -191,9 +214,10 @@ $("file").onchange = async (e) => {
   const f = e.target.files[0];
   if (!f) return;
   fileName = f.name;
+  updateFilePickerUI(currentLang);
   turns = [];
   render();
-  $("file").disabled = true;
+  setFilePickerDisabled(true);
   try {
     lastStatusType = "decoding";
     updateStatusText(currentLang);
@@ -208,7 +232,7 @@ $("file").onchange = async (e) => {
     if (!ranges.length) {
       lastStatusType = "no_speech";
       updateStatusText(currentLang);
-      $("file").disabled = false;
+      setFilePickerDisabled(false);
       return;
     }
     const who = labelTurns(ranges.length);
@@ -225,7 +249,7 @@ $("file").onchange = async (e) => {
     lastStatusType = "file_error";
     lastStatusData = { msg: err.message ?? err };
     updateStatusText(currentLang);
-    $("file").disabled = false;
+    setFilePickerDisabled(false);
   }
 };
 
