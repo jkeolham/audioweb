@@ -20,11 +20,13 @@ try {
   // 2. tts.html 이동 시 언어 설정 유지(localStorage) 확인
   await page.goto(base + "/tts.html");
   assert.equal(await page.textContent("#title"), "Text → MP3", "localStorage의 언어 설정이 유지되어야 합니다.");
+  assert.equal(await page.textContent("#preview"), "Preview", "미리듣기 버튼이 영어여야 합니다.");
   assert.equal(await page.textContent("#go"), "Generate MP3", "버튼이 영어여야 합니다.");
 
   // 다시 한국어로 토글
   await page.click("#lang-btn");
   assert.equal(await page.textContent("#title"), "텍스트 → mp3", "한국어로 다시 전환되어야 합니다.");
+  assert.equal(await page.textContent("#preview"), "미리듣기", "미리듣기 버튼이 한국어여야 합니다.");
   assert.equal(await page.textContent("#go"), "mp3 만들기", "버튼이 한국어여야 합니다.");
 
   // 3. stt.html 이동

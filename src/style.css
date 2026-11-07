@@ -16,6 +16,7 @@ textarea,select,input[type=file] { width:100%; background:var(--raised); color:#
 textarea { min-height:160px; resize:vertical; }
 button,.btn { background:var(--green); color:#000; border:0; border-radius:999px; padding:10px 22px; font-weight:700; font-size:15px; cursor:pointer; text-decoration:none; display:inline-block; }
 button.ghost { background:var(--raised); color:#fff; }
+button.ghost.playing { background:#e91e63; color:#fff; }
 button:disabled { opacity:.5; cursor:default; }
 .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0; }
 .dim { color:var(--dim); font-size:14px; }

@@ -22,7 +22,7 @@ function mp3(pcm) {
   return new Blob(parts, { type: "audio/mpeg" });
 }
 
-self.onmessage = async ({ data: { text, voice, speed } }) => {
+self.onmessage = async ({ data: { text, voice, speed, action = "generate" } }) => {
   try {
     if (!tts) {
       postMessage({ type: "status", msg: "음성 모델 불러오는 중… (최초 1회 다운로드)" });
@@ -33,14 +33,20 @@ self.onmessage = async ({ data: { text, voice, speed } }) => {
     }
     const list = sentences(text);
     if (!list.length) throw new Error("텍스트가 비어 있습니다.");
+    const targetList = action === "preview" ? list.slice(0, 3) : list;
     const gap = new Float32Array(Math.floor(RATE * 0.25)), chunks = [];
-    for (let i = 0; i < list.length; i++) {
-      postMessage({ type: "progress", done: i, total: list.length });
-      const a = await tts.generate(list[i], { voice, speed });
+    for (let i = 0; i < targetList.length; i++) {
+      postMessage({ type: "progress", done: i, total: targetList.length, action });
+      const a = await tts.generate(targetList[i], { voice, speed });
       chunks.push(a.audio, gap);
     }
     const all = new Float32Array(chunks.reduce((n, c) => n + c.length, 0));
     let p = 0; for (const c of chunks) { all.set(c, p); p += c.length; }
-    postMessage({ type: "done", blob: mp3(all), seconds: all.length / RATE });
-  } catch (e) { postMessage({ type: "error", msg: String(e.message ?? e) }); }
+
+    if (action === "preview") {
+      postMessage({ type: "preview_ready", pcm: all, sampleRate: RATE, seconds: all.length / RATE });
+    } else {
+      postMessage({ type: "done", blob: mp3(all), seconds: all.length / RATE });
+    }
+  } catch (e) { postMessage({ type: "error", msg: String(e.message ?? e), action }); }
 };

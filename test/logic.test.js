@@ -53,6 +53,10 @@ test("i18n translations cover both ko and en", () => {
   assert.ok(translations.en);
   assert.equal(t("makeMp3", "ko"), "mp3 만들기");
   assert.equal(t("makeMp3", "en"), "Generate MP3");
+  assert.equal(t("preview", "ko"), "미리듣기");
+  assert.equal(t("preview", "en"), "Preview");
+  assert.equal(t("stopPreview", "ko"), "정지");
+  assert.equal(t("stopPreview", "en"), "Stop");
   assert.equal(t("sttTitle", "ko"), "mp3 → 텍스트");
   assert.equal(t("sttTitle", "en"), "MP3 → Text");
   assert.equal(t("chooseFile", "ko"), "파일 선택");
