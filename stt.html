@@ -6,8 +6,8 @@
   <title id="page-title">mp3 → 텍스트</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#121212">
-  <script type="module" crossorigin src="./assets/stt-D_6hKkv8.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/sw-register-4sqBTkMV.js">
+  <script type="module" crossorigin src="./assets/stt-C_P92cHq.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/sw-register-ClsdQQJd.js">
   <link rel="stylesheet" crossorigin href="./assets/sw-register-5EzgzepB.css">
 </head>
 <body>
@@ -21,6 +21,12 @@
       <label for="file" class="file-btn" id="file-btn">파일 선택</label>
       <span id="file-name" class="file-name dim">선택된 파일 없음</span>
       <input id="file" type="file" accept="audio/*,.mp3" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0,0,0,0)">
+    </div>
+    <div class="row" style="margin:8px 0 12px 0">
+      <label class="dim" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+        <input id="skip-beep" type="checkbox" checked style="width:auto;cursor:pointer">
+        <span id="skip-beep-label">초반 비프음 스킵</span>
+      </label>
     </div>
     <progress id="bar" value="0" max="1" hidden></progress>
     <p id="status" class="dim">전화영어 mp3(영어, 1:1)를 선택하세요. 먼저 거는 쪽(첫 발화)을 강사로 간주합니다.</p>
