@@ -1,11 +1,23 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { resample, splitTurns, labelTurns, invertLabels, floatToInt16 } from "../src/pcm.js";
+import { resample, splitTurns, labelTurns, invertLabels, floatToInt16, filterIntroBeep, isBeepTone } from "../src/pcm.js";
 import { serialize, parse, fmtTime } from "../src/transcript.js";
 import { t, translations, getLang, setLang, toggleLang } from "../src/i18n.js";
 
-const tone = (sec, rate, amp = 0.5) => Float32Array.from({ length: sec * rate }, (_, i) => amp * Math.sin(i / 10));
-const silence = (sec, rate) => new Float32Array(sec * rate);
+const tone = (sec, rate, freq = 1000, amp = 0.5) =>
+  Float32Array.from({ length: Math.floor(sec * rate) }, (_, i) => amp * Math.sin((2 * Math.PI * freq * i) / rate));
+const speechSim = (sec, rate, amp = 0.5) => {
+  // Voice simulation with multiple formant-like frequencies and frequency modulation
+  return Float32Array.from({ length: Math.floor(sec * rate) }, (_, i) => {
+    const f0 = 120 + 30 * Math.sin((2 * Math.PI * 3 * i) / rate);
+    const s = Math.sin((2 * Math.PI * f0 * i) / rate) * 0.4 +
+              Math.sin((2 * Math.PI * 700 * i) / rate) * 0.3 +
+              Math.sin((2 * Math.PI * 2400 * i) / rate) * 0.2 +
+              (Math.random() - 0.5) * 0.1;
+    return amp * s;
+  });
+};
+const silence = (sec, rate) => new Float32Array(Math.floor(sec * rate));
 const cat = (...a) => { const o = new Float32Array(a.reduce((s, x) => s + x.length, 0)); let p = 0; for (const x of a) { o.set(x, p); p += x.length; } return o; };
 
 test("resample 48k->16k yields a third of the samples", () => {
@@ -63,6 +75,8 @@ test("i18n translations cover both ko and en", () => {
   assert.equal(t("chooseFile", "en"), "Choose File");
   assert.equal(t("noFileChosen", "ko"), "선택된 파일 없음");
   assert.equal(t("noFileChosen", "en"), "No file chosen");
+  assert.equal(t("skipBeep", "ko"), "초반 비프음 스킵");
+  assert.equal(t("skipBeep", "en"), "Skip intro beep");
 });
 
 test("i18n dynamic formatting functions work in both languages", () => {
@@ -70,4 +84,51 @@ test("i18n dynamic formatting functions work in both languages", () => {
   assert.equal(translations.en.ttsConverting(2, 5), "Converting sentence 3/5");
   assert.equal(translations.ko.sttDone(4), "완료: 4개 턴. 틀린 부분은 직접 고칠 수 있어요.");
   assert.equal(translations.en.sttDone(4), "Completed: 4 turns. You can edit any mistakes directly.");
+});
+
+test("isBeepTone detects pure sine tones and rejects speech-like audio", () => {
+  const r = 16000;
+  const beep1k = tone(0.4, r, 1000);
+  const beep800 = tone(0.3, r, 800);
+  const voice = speechSim(0.8, r);
+
+  assert.equal(isBeepTone(beep1k, r), true, "1000Hz pure tone should be detected as beep");
+  assert.equal(isBeepTone(beep800, r), true, "800Hz pure tone should be detected as beep");
+  assert.equal(isBeepTone(voice, r), false, "Voice simulation should not be detected as beep");
+});
+
+test("filterIntroBeep removes only early beep turns within first 3.5s", () => {
+  const r = 16000;
+  // Scenario: 0.2s silence + 0.4s beep(1kHz) + 1s silence + 2s voice + 1s silence + 0.4s beep(mid-call)
+  const introBeep = tone(0.4, r, 1000);
+  const voiceTurn = speechSim(2.0, r);
+  const midBeep = tone(0.4, r, 1000);
+
+  const fullAudio = cat(
+    silence(0.2, r),
+    introBeep,
+    silence(1.0, r),
+    voiceTurn,
+    silence(1.0, r),
+    midBeep
+  );
+
+  const turns = splitTurns(fullAudio, r);
+  assert.equal(turns.length, 3, "Original audio should have 3 turns (intro beep, voice, mid beep)");
+
+  const filtered = filterIntroBeep(turns, fullAudio, r);
+  assert.equal(filtered.length, 2, "Intro beep should be filtered out, leaving 2 turns");
+  assert.ok(filtered[0].start >= 1.5 * r, "First turn should now be the voice turn");
+  assert.ok(filtered[1].start >= 4.5 * r, "Second turn should be the mid-call beep");
+});
+
+test("filterIntroBeep keeps all turns when first turn is speech", () => {
+  const r = 16000;
+  const voiceTurn = speechSim(2.0, r);
+  const fullAudio = cat(silence(0.2, r), voiceTurn, silence(1.0, r), voiceTurn);
+  const turns = splitTurns(fullAudio, r);
+  assert.equal(turns.length, 2);
+
+  const filtered = filterIntroBeep(turns, fullAudio, r);
+  assert.equal(filtered.length, 2, "No turns should be removed if first turn is voice");
 });

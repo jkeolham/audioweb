@@ -34,3 +34,63 @@ export function splitTurns(x, rate, { threshold = 0.015, minSilenceMs = 700, min
 
 export const labelTurns = (n) => Array.from({ length: n }, (_, i) => (i % 2 ? "학생" : "강사"));
 export const invertLabels = (l) => l.map((s) => (s === "강사" ? "학생" : "강사"));
+
+export function isBeepTone(samples, rate, { minFreq = 300, maxFreq = 3500, maxCv = 0.18 } = {}) {
+  if (!samples || samples.length < rate * 0.05) return false;
+
+  const zc = [];
+  for (let i = 1; i < samples.length; i++) {
+    if ((samples[i - 1] < 0 && samples[i] >= 0) || (samples[i - 1] > 0 && samples[i] <= 0)) {
+      zc.push(i);
+    }
+  }
+
+  if (zc.length < 15) return false;
+
+  const intervals = [];
+  for (let i = 1; i < zc.length; i++) {
+    intervals.push(zc[i] - zc[i - 1]);
+  }
+
+  const mean = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+  if (mean <= 0) return false;
+
+  const estimatedFreq = rate / (2 * mean);
+  if (estimatedFreq < minFreq || estimatedFreq > maxFreq) return false;
+
+  let variance = 0;
+  for (const iv of intervals) {
+    const diff = iv - mean;
+    variance += diff * diff;
+  }
+  const std = Math.sqrt(variance / intervals.length);
+  const cv = std / mean;
+
+  return cv <= maxCv;
+}
+
+export function filterIntroBeep(turns, fullAudio, rate, { maxStartSec = 3.5, maxDurationSec = 1.2 } = {}) {
+  if (!turns || !turns.length) return [];
+  const result = [];
+  let pastIntro = false;
+
+  for (let i = 0; i < turns.length; i++) {
+    const t = turns[i];
+    const startSec = t.start / rate;
+    const durSec = (t.end - t.start) / rate;
+
+    if (!pastIntro && startSec <= maxStartSec && durSec <= maxDurationSec) {
+      const seg = fullAudio.subarray(t.start, t.end);
+      if (isBeepTone(seg, rate)) {
+        continue;
+      } else {
+        pastIntro = true;
+      }
+    } else {
+      pastIntro = true;
+    }
+    result.push(t);
+  }
+
+  return result;
+}

@@ -1,4 +1,4 @@
-import { splitTurns, labelTurns, invertLabels } from "./pcm.js";
+import { splitTurns, labelTurns, invertLabels, filterIntroBeep } from "./pcm.js";
 import { serialize, parse, fmtTime } from "./transcript.js";
 import { initLangButton, t, getLang } from "./i18n.js";
 
@@ -52,6 +52,7 @@ function updateTexts(lang) {
   if ($("save")) $("save").textContent = t("save", lang);
   if ($("txt")) $("txt").textContent = t("downloadTxt", lang);
   if ($("history-title")) $("history-title").textContent = t("savedHistory", lang);
+  if ($("skip-beep-label")) $("skip-beep-label").textContent = t("skipBeep", lang);
 
   updateFilePickerUI(lang);
   updateStatusText(lang);
@@ -61,6 +62,7 @@ function updateTexts(lang) {
 
 function setFilePickerDisabled(disabled) {
   if ($("file")) $("file").disabled = disabled;
+  if ($("skip-beep")) $("skip-beep").disabled = disabled;
   const picker = $("file-picker");
   if (picker) picker.classList.toggle("disabled", disabled);
 }
@@ -228,7 +230,10 @@ $("file").onchange = async (e) => {
       const ch = audio.getChannelData(c);
       for (let i = 0; i < mono.length; i++) mono[i] += ch[i] / audio.numberOfChannels;
     }
-    const ranges = splitTurns(mono, RATE);
+    let ranges = splitTurns(mono, RATE);
+    if ($("skip-beep")?.checked) {
+      ranges = filterIntroBeep(ranges, mono, RATE);
+    }
     if (!ranges.length) {
       lastStatusType = "no_speech";
       updateStatusText(currentLang);

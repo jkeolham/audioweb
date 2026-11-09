@@ -34,12 +34,14 @@ try {
   assert.equal(await page.textContent("#title"), "mp3 → 텍스트");
   assert.equal(await page.textContent("#file-btn"), "파일 선택");
   assert.equal(await page.textContent("#file-name"), "선택된 파일 없음");
+  assert.equal(await page.textContent("#skip-beep-label"), "초반 비프음 스킵");
 
   // 영어로 전환
   await page.click("#lang-btn");
   assert.equal(await page.textContent("#title"), "MP3 → Text");
   assert.equal(await page.textContent("#file-btn"), "Choose File");
   assert.equal(await page.textContent("#file-name"), "No file chosen");
+  assert.equal(await page.textContent("#skip-beep-label"), "Skip intro beep");
 
   console.log("✅ e2e-lang: ALL TESTS PASSED");
 } finally {
